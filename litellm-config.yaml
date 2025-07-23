@@ -1,0 +1,43 @@
+model_list:
+  - model_name: "groq/llama3-8b-8192"
+    litellm_params:
+      model: "groq/llama3-8b-8192"
+      api_key: "os.environ/GROQ_API_KEY"
+  
+  - model_name: "groq/llama3-70b-8192"
+    litellm_params:
+      model: "groq/llama3-70b-8192"
+      api_key: "os.environ/GROQ_API_KEY"
+  
+  - model_name: "groq/mixtral-8x7b-32768"
+    litellm_params:
+      model: "groq/mixtral-8x7b-32768"
+      api_key: "os.environ/GROQ_API_KEY"
+
+  - model_name: "groq/gemma-7b-it"
+    litellm_params:
+      model: "groq/gemma-7b-it"
+      api_key: "os.environ/GROQ_API_KEY"
+
+# Optional: Add embedding model if you have Gemini API key
+# - model_name: "gemini/text-embedding-004"
+#   litellm_params:
+#     model: "gemini/text-embedding-004"
+#     api_key: "os.environ/GEMINI_API_KEY"
+
+# LiteLLM Settings
+# litellm_settings:
+#   success_callback: ["langfuse"]
+#   failure_callback: ["langfuse"]
+#   cache: true
+#   cache_params:
+#     type: "redis"
+#   drop_params: true
+#   set_verbose: true
+#   json_logs: true
+
+# General Settings
+general_settings:
+  completion_model: "groq/llama3-8b-8192"  # default model
+  use_azure_key_vault: false
+  master_key: "os.environ/LITELLM_MASTER_KEY"

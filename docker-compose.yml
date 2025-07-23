@@ -1,0 +1,72 @@
+services:
+  ## Setting up the LiteLLM instances
+  litellm:
+    container_name: litellm
+    image: ghcr.io/berriai/litellm:main-stable
+    ports:
+      - 4000:4000 # Map the container port to the host, change the host port if necessary
+    volumes:
+      - ./litellm-config.yaml:/app/config.yaml # Mount the local configuration file
+    # You can change the port or number of workers as per your requirements or pass any new supported CLI augument. Make sure the port passed here matches with the container port defined above in `ports` value
+    command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "8" ]
+    networks:
+      - internal
+    environment:
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-1234}
+      - DATABASE_URL=postgresql://${LITELLM_POSTGRES_USER:-postgres}:${LITELLM_POSTGRES_PASSWORD:-postgres}@${LITELLM_POSTGRES_HOST:-litellm_db}:${LITELLM_POSTGRES_PORT:-5432}/${LITELLM_POSTGRES_DATABASE:-postgres}
+      - STORE_MODEL_IN_DB=True # allows adding models to proxy via UI
+      - UI_USERNAME=${UI_USERNAME:-ADMIN}
+      - UI_PASSWORD=${UI_PASSWORD:-ADMIN}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+    env_file:
+      - .env
+    depends_on:
+      - litellm_db
+
+  litellm_db:
+    image: postgres:16.1
+    container_name: litellm_db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${LITELLM_POSTGRES_USER:-postgres}
+      - POSTGRES_PASSWORD=${LITELLM_POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_PORT=${LITELLM_POSTGRES_PORT:-5432}
+      - POSTGRES_DATABASE=${LITELLM_POSTGRES_DATABASE:-postgres}
+      - POSTGRES_HOST=${LITELLM_POSTGRES_HOST:-litellm_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  ## Setting up for OpenWebUI instance
+  openwebui:
+    container_name: open-webui
+    image: ghcr.io/open-webui/open-webui:main
+    ports:
+      - 3000:8080
+    volumes:
+      - open-webui-local:/app/backend/data
+      - ./data/docs:/data/docs
+    environment:
+      - OPENAI_API_BASE_URLS=${OPENAI_API_BASE_URLS:-http://litellm:4000}
+      - OPENAI_API_KEYS=${OPENAI_API_KEYS:-sk-1234}
+      - ENABLE_LITELLM=True
+      - LITELLM_PROXY_PORT=4000
+      - LITELLM_PROXY_HOST=litellm
+      - ENABLE_OLLAMA_API=False
+    env_file:
+      - .env
+    restart: unless-stopped
+    networks:
+      - internal
+    depends_on:
+      - litellm
+
+networks:
+  internal:
+
+volumes:
+  postgres_data:
+  open-webui-local:
