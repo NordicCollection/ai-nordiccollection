@@ -4,22 +4,19 @@ services:
     container_name: litellm
     image: ghcr.io/berriai/litellm:main-stable
     ports:
-      - 4000:4000 # Map the container port to the host, change the host port if necessary
+      - 4000:4000
     volumes:
-      - ./litellm-config.yaml:/app/config.yaml # Mount the local configuration file
-    # You can change the port or number of workers as per your requirements or pass any new supported CLI augument. Make sure the port passed here matches with the container port defined above in `ports` value
+      - ./litellm-config.yaml:/app/config.yaml
     command: [ "--config", "/app/config.yaml", "--port", "4000", "--num_workers", "8" ]
     networks:
       - internal
     environment:
       - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY:-sk-1234}
-      - DATABASE_URL=postgresql://${LITELLM_POSTGRES_USER:-postgres}:${LITELLM_POSTGRES_PASSWORD:-postgres}@${LITELLM_POSTGRES_HOST:-litellm_db}:${LITELLM_POSTGRES_PORT:-5432}/${LITELLM_POSTGRES_DATABASE:-postgres}
-      - STORE_MODEL_IN_DB=True # allows adding models to proxy via UI
+      - DATABASE_URL=postgresql://postgres:postgres@litellm_db:5432/postgres  # Hardcoded for testing
+      - STORE_MODEL_IN_DB=True
       - UI_USERNAME=${UI_USERNAME:-ADMIN}
       - UI_PASSWORD=${UI_PASSWORD:-ADMIN}
       - GROQ_API_KEY=${GROQ_API_KEY}
-    env_file:
-      - .env
     depends_on:
       - litellm_db
 
