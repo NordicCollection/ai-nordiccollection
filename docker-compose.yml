@@ -32,9 +32,7 @@ services:
     environment:
       - POSTGRES_USER=${LITELLM_POSTGRES_USER:-postgres}
       - POSTGRES_PASSWORD=${LITELLM_POSTGRES_PASSWORD:-postgres}
-      - POSTGRES_PORT=${LITELLM_POSTGRES_PORT:-5432}
-      - POSTGRES_DATABASE=${LITELLM_POSTGRES_DATABASE:-postgres}
-      - POSTGRES_HOST=${LITELLM_POSTGRES_HOST:-litellm_db}
+      - POSTGRES_DB=${LITELLM_POSTGRES_DATABASE:-postgres}  # Fixed this
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
@@ -73,6 +71,8 @@ services:
     volumes:
       - ./data:/data
       - ./letsencrypt:/etc/letsencrypt
+    networks: 
+      internal:
 networks:
   internal:
 
